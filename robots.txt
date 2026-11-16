@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /api.php
+Disallow: /install.php
+Disallow: /index.php?page=auth
+Disallow: /index.php?page=report
+Disallow: /index.php?page=history
+Disallow: /index.php?page=review

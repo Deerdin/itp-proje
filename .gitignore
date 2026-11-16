@@ -1,22 +1,24 @@
-# Ortam degiskenleri ve gizli anahtarlar
+# Secrets and machine-specific configuration
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
+!.env.production.example
+*.pem
+*.key
 
-# Bagimliliklar
-node_modules/
-__pycache__/
-*.pyc
-.venv/
-venv/
+# Local databases, sessions, installation state and reports
+/storage/*
+!/storage/.htaccess
+!/storage/.gitkeep
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.log
+/dist/
+/belgeler/ekran-goruntuleri/
 
-# Isletim sistemi ve editor dosyalari
+# OS and editor artifacts
 .DS_Store
 Thumbs.db
-.vscode/
-.idea/
-
-# Derleme ve log ciktilari
-dist/
-build/
-*.log
+__pycache__/
+*.pyc

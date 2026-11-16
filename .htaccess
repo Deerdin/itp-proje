@@ -1,0 +1,12 @@
+Options -Indexes
+DirectoryIndex index.php
+<FilesMatch "^(\.|README|LICENSE|composer\.|.*\.(sqlite|sql|log|bak|zip|ini|md)).*">
+Require all denied
+</FilesMatch>
+<IfModule mod_headers.c>
+Header always set X-Content-Type-Options "nosniff"
+</IfModule>
+
+<FilesMatch "^(error_log|php_errorlog|debug\.log)$">
+Require all denied
+</FilesMatch>

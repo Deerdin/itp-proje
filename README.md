@@ -1,113 +1,64 @@
-# KVKK-Denetçi — Türkçe NLP Tabanlı Gizlilik Politikası ve Aydınlatma Metni Denetim Sistemi
+# VeriLex
 
-**KVKK-Denetçi**, web siteleri ve mobil uygulamalardaki Türkçe aydınlatma metinlerini **6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) Madde 10** ve **Aydınlatma Yükümlülüğünün Yerine Getirilmesinde Uyulacak Usul ve Esaslar Hakkında Tebliğ** esaslarına göre otomatik olarak denetleyen bir karar destek ve uyumluluk analizi platformudur. Proje, **Atatürk Üniversitesi Uygulamalı Bilimler Fakültesi (Oltu) — Bilişim Sistemleri ve Teknolojileri** programı kapsamında **İnternet Tabanlı Programlama (İTP)** dönem projesi ve **TÜBİTAK 2209-A** araştırma önerisi (Öncelikli Alanlar: *Bilişim Hukuku* ve *Yapay Zekâ*) bütünleşik vizyonuyla geliştirilmektedir.
+Türkçe aydınlatma metinlerini analiz eden PHP uygulaması. Cümle kanıtları, kriter bazlı bulgular, kayıtlı raporlar ve uzman değerlendirmesi sunar. Otomatik sonuçlar hukuki görüş veya uyumluluk belgesi değildir.
 
----
+## Yayın ve kurulum
 
-## Canlı URL ve Deneme Hesapları
+Yayın adresi: [verilex.tabsoft.com.tr](https://verilex.tabsoft.com.tr/).
 
-* **Canlı Demo URL (PoC v0.1):** *GitHub Pages / Vercel yayını eklenecek* (`https://deerdin.github.io/itp-proje/` veya Vercel URL)
-* **Yerel Çalıştırma:** Mevcut PoC sürümü sıfır bağımlılıkla doğrudan `index.html` dosyasının tarayıcıda açılmasıyla çalışmaktadır.
-* **Deneme Hesapları (İTP MVP Aşaması):**
-  * *Standart Kullanıcı / Hukuk Uzmanı / Yönetici* rolleri ve kimlik doğrulama akışı Geliştirme Aşaması (10.–13. Hafta) kapsamında eklenecektir.
+cPanel kurulum adımları `belgeler/cpanel-kurulum.md` içindedir. Hosting üzerindeki PHP sürümü, MySQL kullanıcı yetkileri ve `.env` ayarları kuruluma göre yapılandırılır. Bu deponun güncellenmesi sunucu dosyalarını kendiliğinden güncellemez.
 
----
+İlk yönetici `install.php` üzerinden özel kurulum anahtarıyla oluşturulur; tamamlandıktan sonra kurulum kilitlenir ve kurulum dosyası kaldırılır. Gerçek `.env`, veritabanı, oturumlar, loglar ve demo kayıtları depoya alınmaz. Veritabanı kullanıcı parolaları ve kurulum anahtarları README'ye yazılmaz.
 
-## Ekran Görüntüleri
+PHP 8.3/8.4, MySQL 8 veya MariaDB 10.6+, HTTPS ve `pdo_mysql`/`mbstring` uzantıları hedeflenir. Canlı mod PHP 8.2 altını, SQLite kullanımını ve eksik sır/domain ayarlarını reddeder.
 
-> PoC v0.1 arayüzü tek ekranda metin girişi, uyumluluk skoru (%), okunabilirlik metrikleri, 8 kriterli denetim tablosu ve cümle bazlı açıklanabilirlik (XAI) vurgularını sunmaktadır. Canlı yayın sonrasında ekran görüntüleri `docs/screenshots/` klasörüne eklenecektir.
+## Yerel geliştirme
 
----
-
-## Özellikler
-
-### Mevcut Ön Çalışma (PoC v0.1)
-* **8 Kriterli KVKK Madde 10 Denetimi:** Veri sorumlusu kimliği, işleme amacı, aktarım, toplama yöntemi, hukuki sebep, Madde 11 hakları, başvuru kanalı ve saklama/imha bilgisi kontrolü.
-* **Kural Tabanlı Baseline NLP Motoru:** Türkçe ek/kök duyarlı düzenli ifadeler (Regex) ve ağırlıklı terim eşleştirme ile 100 üzerinden ağırlıklı uyumluluk skoru hesaplama.
-* **Açıklanabilirlik (XAI) Vurgulama:** Her cümlenin hangi KVKK kriterini karşıladığını rozetlerle gösterme.
-* **Okunabilirlik Analizi:** Kelime sayısı, cümle sayısı, ortalama cümle uzunluğu ve tahmini okuma süresi.
-* **JSON Rapor Dışa Aktarma:** Analiz çıktısını yapılandırılmış JSON formatında panoya kopyalama ve indirme.
-* **Hazır Örnek Senaryolar:** Tam uyumlu e-ticaret, eksik/riskli SaaS ve yetersiz kısa metin örnekleriyle tek tıkla test.
-
-### Hedeflenen İTP Web MVP Özellikleri (10.–13. Hafta)
-* 5 çekirdek ekranlı tam yığın web mimarisi (Giriş/Kayıt, Tarama Ekranı, Madde Bazlı Risk Raporu, Geçmiş Analizler & Karşılaştırma, Uzman Doğrulama/Etiketleme Kuyruğu).
-* Hash'lenmiş parola ve rol tabanlı erişim kontrolü (Standart Kullanıcı, Hukuk/Denetim Uzmanı, Yönetici).
-* İlişkisel veritabanı katmanı (`Kullanici`, `Politika_Belgesi`, `Analiz_Raporu`, `Kriter_Risk_Skoru`, `Uzman_Dogrulama`).
-* İnce ayarlı Türkçe BERT (`BERTurk`) hibrit model entegrasyonu.
-
----
-
-## Teknoloji Yığını
-
-| Katman | PoC v0.1 (Mevcut) | Hedef İTP Web MVP & 2209-A Mimarisi |
-| :--- | :--- | :--- |
-| **Ön Yüz** | Semantik HTML5, Duyarlı CSS3, Vanilla JS | Semantik HTML5, CSS3 / Next.js veya Express şablonları |
-| **Sunucu & API** | İstemci taraflı PoC motoru | Node.js / Express REST API (XSS, SQLi, CSRF korumalı) |
-| **Veritabanı** | — | PostgreSQL / SQLite (İlişkisel şema) |
-| **NLP / Yapay Zekâ** | Kural Tabanlı Baseline (Regex + Ağırlık) | Python FastAPI mikroservisi + `BERTurk` hibrit sınıflandırıcı |
-| **Yayın** | GitHub Pages / Vercel (Statik) | Vercel / Render (Ücretsiz bulut ortamı) |
-
----
-
-## Kurulum
-
-### PoC v0.1 (Mevcut Sürüm)
-1. Depoyu klonlayın:
-   ```bash
-   git clone https://github.com/Deerdin/itp-proje.git
-   cd itp-proje
-   ```
-2. `index.html` dosyasını doğrudan modern bir tarayıcıda açın (veya VS Code Live Server ile başlatın).
-
----
-
-## Ortam Değişkenleri
-
-Mevcut statik PoC sürümü ortam değişkeni gerektirmez. İTP Geliştirme aşamasında sunucu ve veritabanı katmanı eklendiğinde `.env.example` dosyası üzerinden aşağıdaki değişkenler yapılandırılacaktır:
-* `PORT`: Sunucu çalışma portu
-* `DATABASE_URL`: Veritabanı bağlantı adresi
-* `JWT_SECRET` / `SESSION_SECRET`: Oturum ve kimlik doğrulama gizli anahtarı
-* `NLP_SERVICE_URL`: Python tabanlı BERTurk analiz servisi uç noktası
-
----
-
-## Proje Yapısı
-
-```text
-itp-proje/
-├── index.html                        # KVKK-Denetçi PoC ana sayfası (semantik HTML5)
-├── styles.css                        # Duyarlı ve erişilebilir arayüz stilleri
-├── app.js                            # 8 kriterli KVKK m.10 kural tabanlı baseline motoru
-├── docs/
-│   └── TUBITAK_2209A_Proje_Raporu.md # Hocaya sunulacak TÜBİTAK 2209-A uyumlu proje raporu
-├── .gitignore                        # Git dışlama kuralları
-└── README.md                         # Proje dokümantasyonu (İTP Ek-1 uyumlu)
+```sh
+cd /Applications/XAMPP/xamppfiles/htdocs/kvkk-denetci
+/Applications/XAMPP/xamppfiles/bin/php bin/setup.php
+/Applications/XAMPP/xamppfiles/bin/php -S 127.0.0.1:8080 router.php
 ```
 
----
+Yerel adres: http://127.0.0.1:8080 . Yerelde SQLite kullanılabilir; MySQL için `.env` içinde DB_DRIVER, DB_HOST/DB_SOCKET, DB_NAME, DB_USER ve DB_PASSWORD ayarlanır. `.env.production.example` canlı ortam şablonudur. Gerçek `.env` ve veritabanları sürüm kontrolüne eklenmez.
 
-## Ekip ve Katkılar
+## Temel davranışlar
 
-* **Proje Ekibi:** *Grup üyelerinin ad-soyad, GitHub kullanıcı adı ve görev dağılımları 5. hafta tesliminde güncellenecektir.*
-* **Ders Sorumlusu:** Doç. Dr. Hamza POLAT (Atatürk Üniversitesi)
+- Hesapsız kullanıcı bir metni analiz edebilir. İkinci analizde giriş gerekir. Hatalı form hakkı tüketmez.
+- Deneme kotası bir yıllık HttpOnly çerez ve sunucuda belirteç özetiyle tutulur. Çerezlerin tamamını silmek veya farklı tarayıcı kullanmak yeni ziyaretçi gibi görünür. Kişi başına mutlak kota garantisi yoktur.
+- Misafir raporu oturumda geçici tutulur; girişten sonra kullanıcı isterse hesaba kaydeder. Hesaba kaydedilmeden uzmanlara gösterilmez.
+- Kayıtlı kullanıcı kendi raporlarını arar, karşılaştırır, yeniden adlandırır ve siler. Uzmanlar kayıtlı metinlere gerekçeli değerlendirme ekler. Yönetici rolleri yönetir.
+- Skor altı çekirdek kriterden üretilir; iki tamamlayıcı kontrol ayrıca gösterilir. Motor kural tabanlıdır ve bağlama duyarlı örüntüler kullanır; eğitilmiş dil modeli veya ölçülmüş NLP başarım iddiası yoktur.
 
----
+## Testler ve paketleme
 
-## Bilinen Eksikler (PoC Aşaması)
+```sh
+php tests/run.php
+# HTTP testlerini yalnızca ayrı, kurgusal verili test sunucusuna karşı çalıştırın.
+python3 tests/http_smoke.py http://127.0.0.1:8081
+python3 bin/build-release.py
+```
 
-* Sunucu taraflı veritabanı, kullanıcı kaydı/girişi ve geçmiş analizlerin kalıcı olarak saklanması henüz eklenmemiştir (İTP 10.–13. hafta takviminde geliştirilecektir).
-* Mevcut analiz motoru kural tabanlı baseline yaklaşımla çalışmaktadır; anlamsal belirsizliklerin çözümü için `BERTurk` tabanlı derin öğrenme modeli 2209-A süreciyle entegre edilecektir.
+HTTP senaryoları test hesabı ve belge oluşturur; canlı veritabanına karşı çalıştırılmaz. Son kontrol sonuçları `belgeler/test-sonuclari.md` içindedir. Paket SHA-256 manifesti içerir. MySQL testi mevcut yerel verilere dokunmadan ayrı MariaDB sürecinde yapıldı.
 
----
+## Dosya yapısı
 
-## Yapay Zekâ Kullanım Beyanı
+- `index.php`, `api.php`: sayfalar, form işlemleri ve oturumla korunan API.
+- `install.php`: tek seferlik ilk yönetici kurulumu.
+- `app`: yapılandırma, PDO veri erişimi, analiz ve şablonlar.
+- `assets`: VeriLex logosu ve favicon, yerel CSS, JavaScript ve Manrope fontu.
+- `storage`: özel veritabanı/oturum dosyaları; yayın paketine yerel veriler alınmaz.
+- `bin`: CLI kurulum, bakım ve paketleme araçları.
+- `tests`, `belgeler`: geliştirme kontrolleri ve işletim dokümantasyonu.
 
-Bu ön çalışma aşamasında; arayüz iskeleti, 8 kriterli rubrik örüntülerinin kodlanması ve dokümantasyon taslaklarının yapılandırılmasında üretken yapay zekâ asistanından destek alınmıştır. Tüm hukuki kriterler 6698 sayılı KVKK Madde 10 metniyle karşılaştırılarak ekip tarafından doğrulanmıştır.
+## İşletim ve kapsam notları
 
----
+HTTPS, PHP sürümü ve veritabanı bağlantısı hosting üzerinde doğrulanmalıdır. Site işletmecisinin kimlik/iletişim ve saklama süreçlerine uygun hukuki metinler ayrıca tamamlanmalıdır. E-posta doğrulama, parola sıfırlama ve kullanıcı talep/hesap silme süreci bu sürümde otomatik değildir; herkese açık kullanım öncesi işletim kapsamı belirlenmelidir.
 
-## Lisans ve Kaynaklar
+## Lisanslar ve kaynaklar
 
-* Bu proje eğitim ve akademik araştırma amaçlı geliştirilmektedir (MIT Lisansı önerilir).
-* **Temel Mevzuat:** 6698 Sayılı Kişisel Verilerin Korunması Kanunu; Aydınlatma Yükümlülüğünün Yerine Getirilmesinde Uyulacak Usul ve Esaslar Hakkında Tebliğ.
-* **Akademik Kaynaklar:** Wilson vd. (2016) `10.18653/v1/P16-1126`, Harkous vd. (2018) Polisis, Schweter (2020) `10.5281/zenodo.3770924`, Can (2019) `10.21205/deufmd.2019216220`.
+Manrope fontu SIL Open Font License 1.1 ile kullanılır; lisans `assets/fonts/OFL.txt` içinde. Kaynak: https://github.com/google/fonts/tree/main/ofl/manrope . Harici tema veya JavaScript çalışma zamanı bağımlılığı yoktur. Kod için lisans kararı proje sahibi tarafından verilecektir.
+
+Analiz kriteri kaynakları: https://www.kvkk.gov.tr/Icerik/2033/Aydinlatma-Yukumlulugu- ve https://www.kvkk.gov.tr/Icerik/4132/aydinlatma-yukumlulugunun-yerine-getirilmesinde-uyulacak-usul-ve-esaslar-hakkinda-teblig .
+
+Uygulama ve testlerin hazırlanmasında Codex desteği kullanılmıştır. Kaynak dokümanlar geliştirme alanında korunur; yayın paketine konulmaz.
