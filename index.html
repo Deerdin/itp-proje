@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="6698 sayılı KVKK Madde 10 ve Aydınlatma Tebliği kapsamında Türkçe aydınlatma metinlerini otomatik denetleyen NLP tabanlı ön çalışma (PoC) aracı.">
+  <title>KVKK-Denetçi PoC | Türkçe Aydınlatma Metni Uyumluluk Analizi</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#ana-icerik">Ana içeriğe atla</a>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <span class="brand-badge" aria-hidden="true">KVKK</span>
+        <div>
+          <h1 class="brand-title">KVKK-Denetçi <span class="poc-tag">PoC v0.1</span></h1>
+          <p class="brand-subtitle">6698 Sayılı Kanun Madde 10 Uyumluluk &amp; Açıklanabilir NLP Ön Çalışması</p>
+        </div>
+      </div>
+      <nav aria-label="Üst bağlantılar" class="header-nav">
+        <a href="#analiz-alani">Analiz Aracı</a>
+        <a href="#rubrik-bilgi">8 Kriterli Rubrik</a>
+        <a href="#proje-vizyonu">2209-A &amp; İTP Vizyonu</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="ana-icerik" class="container">
+    <section class="intro-banner" aria-labelledby="intro-baslik">
+      <div>
+        <h2 id="intro-baslik">Aydınlatma Metinlerini Saniyeler İçinde Denetleyin</h2>
+        <p>
+          Bu ön çalışma (Proof of Concept), web siteleri ve mobil uygulamalardaki Türkçe KVKK aydınlatma metinlerini
+          <strong>6698 sayılı KVKK Madde 10</strong> ve <strong>Aydınlatma Yükümlülüğü Tebliği</strong> esas alınarak
+          oluşturulan <strong>8 kriterli bilimsel rubrik</strong> ile tarar; uyumluluk skorunu, eksik/riskli maddeleri ve
+          cümle bazlı kanıt vurgularını sunar.
+        </p>
+      </div>
+      <div class="baseline-pill" role="note">
+        <strong>Aktif Motor:</strong> Kural Tabanlı Baseline (Regex + Ağırlıklı Terim)<br>
+        <span>Sonraki Aşama: BERTurk Hibrit Sınıflandırıcı</span>
+      </div>
+    </section>
+
+    <section id="analiz-alani" class="workspace-grid" aria-label="Metin girişi ve analiz sonuçları">
+      <!-- Sol Panel: Giriş -->
+      <div class="card input-card">
+        <div class="card-header">
+          <h2>1. Aydınlatma Metni Girişi</h2>
+          <span class="helper-hint">Örnek seçin veya metin yapıştırın</span>
+        </div>
+
+        <div class="preset-bar" role="group" aria-label="Örnek aydınlatma metinleri">
+          <button type="button" class="btn btn-secondary" data-preset="uyumlu">Örnek 1: Uyumlu E-Ticaret</button>
+          <button type="button" class="btn btn-secondary" data-preset="riskli">Örnek 2: Eksik/Riskli SaaS</button>
+          <button type="button" class="btn btn-secondary" data-preset="yetersiz">Örnek 3: Yetersiz Kısa Metin</button>
+          <button type="button" class="btn btn-ghost" id="temizle-btn">Temizle</button>
+        </div>
+
+        <label for="politika-metni" class="sr-only">KVKK Aydınlatma Metni</label>
+        <textarea
+          id="politika-metni"
+          rows="14"
+          placeholder="Denetlemek istediğiniz Türkçe KVKK Aydınlatma Metnini buraya yapıştırın..."
+          spellcheck="false"
+        ></textarea>
+
+        <div class="action-row">
+          <div class="live-stats" id="giris-istatistik" aria-live="polite">
+            0 kelime • 0 karakter
+          </div>
+          <button type="button" class="btn btn-primary" id="analiz-et-btn">
+            Uyumluluğu Analiz Et
+          </button>
+        </div>
+      </div>
+
+      <!-- Sağ Panel: Özet Skor & Metrikler -->
+      <div class="card summary-card" aria-live="polite">
+        <div class="card-header">
+          <h2>2. Uyumluluk Skoru &amp; Risk Özeti</h2>
+          <div class="export-actions">
+            <button type="button" class="btn btn-small btn-secondary" id="json-kopyala-btn" disabled>JSON Kopyala</button>
+            <button type="button" class="btn btn-small btn-secondary" id="json-indir-btn" disabled>JSON İndir</button>
+          </div>
+        </div>
+
+        <div id="ozet-bos" class="empty-state">
+          <p>Sonuçları görmek için soldan bir örnek metin seçin veya kendi aydınlatma metninizi yapıştırıp <strong>"Uyumluluğu Analiz Et"</strong> düğmesine tıklayın.</p>
+        </div>
+
+        <div id="ozet-dolu" class="hidden">
+          <div class="score-hero">
+            <div class="score-circle" id="skor-dairesi">
+              <span class="score-value" id="skor-degeri">0%</span>
+              <span class="score-label">Uyumluluk</span>
+            </div>
+            <div class="score-meta">
+              <span class="risk-badge" id="risk-rozeti">Değerlendiriliyor</span>
+              <p id="risk-aciklama" class="risk-desc"></p>
+              <div class="mini-counts">
+                <span class="count-pill ok"><strong id="tam-sayisi">0</strong> Tam</span>
+                <span class="count-pill warn"><strong id="kismi-sayisi">0</strong> Kısmi</span>
+                <span class="count-pill err"><strong id="eksik-sayisi">0</strong> Eksik</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="readability-grid" aria-label="Metin ve okunabilirlik metrikleri">
+            <div class="stat-box">
+              <span class="stat-num" id="metrik-kelime">0</span>
+              <span class="stat-lbl">Kelime</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-num" id="metrik-cumle">0</span>
+              <span class="stat-lbl">Cümle</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-num" id="metrik-ort-cumle">0</span>
+              <span class="stat-lbl">Ort. Kelime/Cümle</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-num" id="metrik-okuma">0 dk</span>
+              <span class="stat-lbl">Okuma Süresi</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Kriter Bazlı Sonuçlar -->
+    <section id="kriter-sonuclari-bolumu" class="card hidden" aria-labelledby="kriter-baslik" aria-live="polite">
+      <div class="card-header">
+        <h2 id="kriter-baslik">3. KVKK Madde 10 Kriter Bazlı Denetim Raporu</h2>
+        <span class="helper-hint">Ağırlıklı toplam 100 puan üzerinden hesaplanır</span>
+      </div>
+      <div class="table-responsive">
+        <table class="audit-table">
+          <thead>
+            <tr>
+              <th scope="col">Kriter &amp; Dayanak</th>
+              <th scope="col">Ağırlık</th>
+              <th scope="col">Durum</th>
+              <th scope="col">Bulgu / Eksiklik ve Öneri</th>
+            </tr>
+          </thead>
+          <tbody id="kriter-tablo-govde"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Açıklanabilir Metin İçi Vurgulama -->
+    <section id="vurgulama-bolumu" class="card hidden" aria-labelledby="vurgu-baslik">
+      <div class="card-header">
+        <h2 id="vurgu-baslik">4. Açıklanabilirlik (XAI): Cümle Bazlı Kanıt Vurgulama</h2>
+        <span class="helper-hint">Hangi cümlenin hangi KVKK kriterini karşıladığını inceleyin</span>
+      </div>
+      <div id="vurgulu-metin-alani" class="highlighted-doc"></div>
+    </section>
+
+    <!-- Rubrik Bilgisi & 2209-A Vizyonu -->
+    <section id="rubrik-bilgi" class="info-grid">
+      <article class="card">
+        <h2>Bilimsel Değerlendirme Rubriği (6698 s. KVKK m.10)</h2>
+        <p>
+          Model çıktıları, 6698 sayılı Kişisel Verilerin Korunması Kanunu'nun 10. maddesi ve ilgili Tebliğ esas
+          alınarak tanımlanan 8 zorunlu/tamamlayıcı bileşene göre puanlanır:
+        </p>
+        <ul class="clean-list">
+          <li><strong>K1 (%15):</strong> Veri sorumlusunun ve varsa temsilcisinin kimliği</li>
+          <li><strong>K2 (%15):</strong> Kişisel verilerin hangi amaçla işleneceği</li>
+          <li><strong>K3 (%15):</strong> İşlenen verilerin kimlere ve hangi amaçla aktarılabileceği</li>
+          <li><strong>K4 (%10):</strong> Kişisel veri toplamanın yöntemi</li>
+          <li><strong>K5 (%15):</strong> Kişisel veri toplamanın hukuki sebebi (m.5 / m.6)</li>
+          <li><strong>K6 (%15):</strong> İlgili kişinin 11. maddede sayılan hakları</li>
+          <li><strong>K7 (%10):</strong> Başvuru usulü ve iletişim kanalı (KEP, e-posta, adres)</li>
+          <li><strong>K8 (%5):</strong> Saklama süresi, imha veya politika güncelleme bilgisi</li>
+        </ul>
+      </article>
+
+      <article id="proje-vizyonu" class="card">
+        <h2>TÜBİTAK 2209-A &amp; İTP Dönem Projesi Yol Haritası</h2>
+        <p>
+          Bu PoC uygulaması, <strong>İnternet Tabanlı Programlama</strong> dönem projesi (5 ekranlı Web MVP) ile
+          <strong>TÜBİTAK 2209-A</strong> araştırma projesinin (<em>Bilişim Hukuku &amp; Yapay Zekâ</em>) ilk çalışan
+          prototipidir.
+        </p>
+        <ul class="clean-list">
+          <li><strong>Veri Katmanı (MVP):</strong> Kullanıcı, Politika Belgesi, Analiz Raporu, Kriter Risk Skoru, Uzman Doğrulama</li>
+          <li><strong>Deneysel Karşılaştırma:</strong> Kural Tabanlı Baseline (bu PoC) vs. İnce Ayarlı Türkçe BERT (<code>BERTurk</code>)</li>
+          <li><strong>Değerlendirme Metrikleri:</strong> Precision, Recall, Macro-F1, Cohen's Kappa ve SUS Kullanılabilirlik</li>
+        </ul>
+      </article>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>
+        <strong>KVKK-Denetçi PoC</strong> • Atatürk Üniversitesi Uygulamalı Bilimler Fakültesi (Oltu) — Bilişim Sistemleri ve Teknolojileri •
+        İTP Dönem Projesi &amp; TÜBİTAK 2209-A Ön Çalışması (2026–2027)
+      </p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+# Ortam degiskenleri ve gizli anahtarlar
+.env
+.env.local
+.env.*.local
+
+# Bagimliliklar
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Isletim sistemi ve editor dosyalari
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Derleme ve log ciktilari
+dist/
+build/
+*.log
